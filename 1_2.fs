@@ -36,17 +36,11 @@
 
 variable sum
 
-variable break 200000 break !
-
-: print-if-break-gt-0 
-break @ if dup dup . ." -> " sum @ + . CR break @ 1- break ! else then
-;
-
 : parse
   0 0
   BEGIN 2 pick 0> WHILE
     3 pick 3 pick is-digit case
-    -2 of 0 2swap swap 10 * + print-if-break-gt-0 sum @ + sum ! 2drop 1- swap 1+ swap 0 0 endof
+    -2 of 0 2swap swap 10 * + sum @ + sum ! 2drop 1- swap 1+ swap 0 0 endof
     -1 of 0 2rot 1- swap 1+ swap 2rot 2rot 2drop endof
     2swap drop 2 pick swap dup 0= IF drop 2 pick ELSE THEN swap 2swap
     2rot 2 pick - swap 2 pick + swap 2rot 2rot nip
@@ -57,8 +51,8 @@ break @ if dup dup . ." -> " sum @ + . CR break @ 1- break ! else then
 \ s\" two1nine\neightwothree\nabcone2threexyz\nxtwone3four\n4nineeightseven2\nzoneight234\n7pqrstsixteen\n"
 \ 0 sum ! parse sum @ CR . CR bye
 
-: advcode1_1
+: advcode
   0 sum ! CR parse ;
 create buffer 1000000 allot
 : open-read R/O open-file drop dup dup file-size drop drop buffer swap rot read-file drop swap close-file drop ;
-0 S" input1_1" open-read buffer swap advcode1_1 sum @ CR . CR bye
+0 S" input1_1" open-read buffer swap advcode sum @ CR . CR bye
