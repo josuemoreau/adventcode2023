@@ -8,25 +8,25 @@
 ;
 
 variable sum
-variable min_blue
-variable min_red
-variable min_green
+variable max_blue
+variable max_red
+variable max_green
 
-: power min_blue @ min_red @ min_green @ * * ;
+: power max_blue @ max_red @ max_green @ * * ;
 
 : parse
     begin 5 - swap 5 + swap ( skip `Game ` ) dup 0> ( and test if length > 0 ) while
         0 0 2swap >number \ read game number
-        0 min_blue ! 0 min_red ! 0 min_green !
+        0 max_blue ! 0 max_red ! 0 max_green !
         begin 1 pick C@ 10 <> while \ while the next character is not \n
             0 0 2swap 2 - swap 2 + swap >number 1- swap 1+ swap \ skip `: `, `, ` or `; ` and read the next number
             \ then check the color
-            2dup S" blue" compare abs 1 = IF \ get the read number and compare it with min_blue
-                                             2swap drop dup min_blue @ > IF min_blue ! ELSE drop THEN
+            2dup S" blue" compare abs 1 = IF \ get the read number and compare it with max_blue
+                                             2swap drop dup max_blue @ > IF max_blue ! ELSE drop THEN
                                              4 - swap 4 + swap \ skip the word `blue`
-            ELSE 2dup S" red" compare abs 1 = IF 2swap drop dup min_red @ > IF min_red ! ELSE drop THEN
+            ELSE 2dup S" red" compare abs 1 = IF 2swap drop dup max_red @ > IF max_red ! ELSE drop THEN
                                                  3 - swap 3 + swap
-            ELSE 2dup S" green" compare abs 1 = IF 2swap drop dup min_green @ > IF min_green ! ELSE drop THEN
+            ELSE 2dup S" green" compare abs 1 = IF 2swap drop dup max_green @ > IF max_green ! ELSE drop THEN
                                                    5 - swap 5 + swap
             ELSE .s bye
             THEN THEN THEN
