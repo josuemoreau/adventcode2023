@@ -1,12 +1,3 @@
-: compare ( addr1 u1 addr2 u2 -- n )
-  rot 2dup 2rot 2rot min 0 swap 0 do
-    drop over I + C@ over I + C@ = IF 0 ELSE 1 LEAVE THEN
-  loop
-  IF -2 nip nip nip nip
-  ELSE 2drop 2dup = IF 2drop 0 ELSE < IF 1 ELSE -1 THEN THEN
-  THEN
-;
-
 variable len
 variable sum
 
