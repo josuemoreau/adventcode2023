@@ -10,21 +10,13 @@
 ;
 
 variable nbseeds 20 nbseeds !
-create seeds 1000 cells allot
-\ create seed-soil 200 cells allot
-\ create soil-fertilizer 200 cells allot
-\ create fertilizer-water 200 cells allot
-\ create water-light 200 cells allot
-\ create light-temperature 200 cells allot
-\ create temperature-humidity 200 cells allot
-\ create humidity-location 200 cells allot
+create seeds 5000 cells allot
 
 create maps 2000 cells allot
 
 : parse ( addr u -- )
     6 - swap 6 + swap
     0 rot rot
-    \ rot 6 + rot 6 - rot
     begin over C@ 10 <> while
         read-number 2swap drop
         3 pick cells seeds + !
@@ -36,18 +28,14 @@ create maps 2000 cells allot
     rot drop 0 rot 2 + rot 2 -
     begin dup 0> while
         begin over C@ 10 <> while 1- swap 1+ swap repeat 1- swap 1+ swap \ skip everything until next line
-        \ 2dup read-number 2swap 2drop drop 2 pick = if 
         dup 0<= if 1 else over C@ 10 = then if 
             \ end of map
             rot dup cells maps + -1 swap ! 1+ rot 1+ rot 1-
         else
-            \ 2dup drop 20 type CR
             read-number 2swap drop 3 pick cells maps + ! rot 1+ rot rot
             read-number 2swap drop 3 pick cells maps + ! rot 1+ rot rot
             read-number 2swap drop 3 pick 1- cells maps + @ + 3 pick cells maps + ! rot 1+ rot rot
         then
-        \ 1- swap 1+ swap \ skip \n
-        \ test end of map
     repeat
     2drop
 ;
@@ -59,33 +47,29 @@ create maps 2000 cells allot
         mpos @
         dup -1 <> if
             mpos cell+ @ mpos 2 cells + @
-            .s CR
             over sfrom > if
-                \ début seed < début intervalle
+                \ start of seed < end of interval
                 over sto >= if
-                    \ fin seed <= début intervalle
-                    \ intervalle:          |-----------|
+                    \ end of seed <= end of interval
+                    \ interval:            |-----------|
                     \ seed:       |-------|
-                    ." CASE 1" CR
                     2drop drop mpos 3 cells + to mpos
                 else
-                    \ fin seed > début intervalle
+                    \ end of seed > start of interval
                     dup sto >= if
-                        \ fin seed <= fin intervalle
-                        \ intervalle:      |-----------|
+                        \ end of seed <= end of interval
+                        \ interval:        |-----------|
                         \ seed:       |---------|
-                        ." CASE 2" CR
                         over seeds nbseeds @ cells + !
                         sto seeds nbseeds @ 1+ cells + !
                         over seeds iseed 1+ cells + !
                         nbseeds @ dup 2 + nbseeds ! nip
-                        over sto rot mend mpos .s CR recurse
+                        over sto rot mend mpos recurse
                         nip to sto mpos 3 cells + to mpos
                     else
-                        \ fin seed > fin intervalle
-                        \ intervalle:      |-----------|
+                        \ end of seed > end of interval
+                        \ interval:        |-----------|
                         \ seed:       |--------------------|
-                        ." CASE 3" CR
                         over seeds nbseeds @ cells + !
                         dup seeds nbseeds @ 1+ cells + !
                         dup seeds nbseeds @ 2 + cells + !
@@ -94,40 +78,35 @@ create maps 2000 cells allot
                         nbseeds @ dup 4 + nbseeds !
                         3dup mend mpos recurse
                         sto swap 2 + mend mpos recurse
-                        drop nip to sto mpos 3 cells + to mpos
+                        nip to sto mpos 3 cells + to mpos
                     then
                 then
             else
-                \ début seed >= début intervalle
+                \ start of seed >= start of interval
                 dup sfrom <= if
-                    \ début seed >= fin intervalle
-                    \ intervalle:  |-----------|
+                    \ start of seed >= end of interval
+                    \ interval:    |-----------|
                     \ seed:                     |---------|
-                    ." CASE 4" CR
                     2drop drop mpos 3 cells + to mpos
                 else
-                    \ début seed < fin intervalle
+                    \ start of seed < end of interval
                     dup sto >= if
-                        \ fin seed <= fin intervalle
-                        \ intervalle:      |-----------|
+                        \ end of seed <= end of interval
+                        \ interval:        |-----------|
                         \ seed:               |----|
-                        ." CASE 5" CR
                         drop - dup sto + to sto sfrom + to sfrom
                         sfrom seeds iseed cells + !
                         sto seeds iseed 1+ cells + !
                         begin mpos @ -1 <> while mpos cell+ to mpos repeat mpos cell+ to mpos
                     else
-                        \ fin seed > fin intervalle
-                        \ intervalle:      |-----------|
+                        \ end of seed > end of interval
+                        \ interval:        |-----------|
                         \ seed:                  |-----------|
-                        ." CASE 6" CR
                         dup seeds nbseeds @ cells + !
                         sto seeds nbseeds @ 1+ cells + !
                         dup seeds iseed 1+ cells + !
                         nbseeds @ dup 2 + nbseeds !
-                        ." ------------------------------------------------------------------------------- "
-                        over sto rot mend mpos .s CR recurse
-                        ." -> " .s CR
+                        over sto rot mend mpos recurse
                         to sto - dup sto + to sto sfrom + to sfrom
                         sfrom seeds iseed cells + !
                         sto seeds iseed 1+ cells + !
@@ -138,30 +117,19 @@ create maps 2000 cells allot
         else
             drop mpos cell+ to mpos
         then
-        .s CR
     repeat
 ;
 
 : advcode
-    parse CR
-    3 0 do
+    parse
+    nbseeds @ 0 do
         seeds I cells + @
         seeds I 1+ cells + @
         I
         3 pick cells maps +
         maps
-        .s CR
         process-interval
-        \ bye
-    loop 
-    
-    CR
-    nbseeds @ cells seeds + seeds do
-        I @ . ." "
-    cell +loop
-    
-    CR
-    
+    2 +loop 
     seeds nbseeds @ min-array
 ;
 
